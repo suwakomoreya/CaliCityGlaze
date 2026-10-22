@@ -25,7 +25,17 @@ void clearterm(){
 };
 // menus ui
 void usercity(){
-    std::cout << "yeah" << std::endl;
+    std::string choice;
+    auto menugraphic = [&choice](){
+        std::cout << "-----------" << std::endl;
+        std::cout << "---#input city name ex. SanJose " << std::endl;
+        std::cout << "-------------" << std::endl;
+        std::cin >> choice;
+    }
+    while(choice.empty() != 1 && choice.find(" ") !=std::string::npos){
+        clearterm();
+        menugraphic();
+    }
 };
 void choosecity(){
     int choice;

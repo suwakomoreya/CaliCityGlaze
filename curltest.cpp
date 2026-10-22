@@ -17,7 +17,6 @@ int main(){
         CURLcode result = curl_easy_perform(curl);
         if(result == CURLE_OK){
             std::cout << response << "\n";
-
         }
         else{
             std::cerr << curl_easy_strerror(result) << '\n';
