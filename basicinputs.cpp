@@ -10,6 +10,11 @@ using json = nlohmann::json;
 int startMenuInput;
 std::string citypicked;
 std::string vacaycity;
+//call writecallback
+size_t writeCallBack(char* data, size_t size, size_t nmemb, std::string* response){
+    response->append(data,size*nmemb);
+    return size*nmemb;
+}
 // other
 void clearterm(){
     #ifdef _WIN32
@@ -42,27 +47,27 @@ void choosecity(){
     switch(choice){
         case 1: //sj
             clearterm();
-            citypicked = "sanjose";
+            citypicked = "SanJose";
             startmenu();
             break;
         case 2: //sf
             clearterm();
-            citypicked = "sanfrancisco";
+            citypicked = "SanFrancisco";
             startmenu();
             break;
         case 3: //sac
             clearterm();
-            citypicked = "sacramento";
+            citypicked = "Sacramento";
             startmenu();
             break;
         case 4: //la
             clearterm();
-            citypicked = "losangeles";
+            citypicked = "LosAngeles";
             startmenu();
             break;
         case 5: //sd
             clearterm();
-            citypicked = "sandiego";
+            citypicked = "SanDiego";
             startmenu();
             break;
         default:
@@ -72,17 +77,29 @@ void choosecity(){
     }
 };
 void citydata(){
-    size_t writeCallBack(char* data, size_t size, size_t nmemb, std::string* response){
-        response->append(data,size*nmemb);
-        return size*nmemb;
-    } 
     curl_global_init(CURL_GLOBAL_DEFAULT);
     CURL* curl = curl_easy_init();
-    std::string response;
-    
-    auto usercitydata = [&response,&curl,&citypicked](){
-        if(curl)
-    }
+    std::string usercitydata; // move globally after done
+    std::string vacaycitydata; // move globally after done
+    //grab datas
+    auto grabvcdata = [&vacaycitydata,&curl](){
+        if(curl){
+            curl_easy_setopt(curl,CURLOPT_URL,cities.at(citypicked));
+            curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
+            curl_easy_setopt(curl,CURLOPT_WRITEDATA,&vacaycitydata);
+            CURLcode result = curl_easy_perform(curl);
+            if(result == CURLE_OK){
+                std::cout<< "City data loaded: " << cities.at(citypicked) << "\n";
+            }
+            else{
+                std::cerr << curl_easy_strerror(result) << "\n";
+            }
+            curl_easy_cleanup(curl);
+        }
+    };
+    auto grabucdata = [&usercitydata,&curl](){
+        // curl_easy_setopt(curl,CURLOPT_URLcities, ) cities.at(citypicked)? i need to figure out how i can get the users data based off location name
+    };
 };
 
 void startmenu(){
