@@ -23,10 +23,66 @@ void usercity(){
     std::cout << "yeah" << std::endl;
 };
 void choosecity(){
-    std::cout << "yo" << std::endl;
+    int choice;
+    auto menugraphic = [&choice](){
+        std::cout << "--------------" << std::endl;
+        std::cout << "---#select a city" << std::endl;
+        std::cout << "1. san jose" << std::endl;
+        std::cout << "2. san francisco" << std::endl;
+        std::cout << "2. sacramento" << std::endl;
+        std::cout << "2. los angeles" << std::endl;
+        std::cout << "5. san diego" << std::endl;
+        std::cout << "--------------" << std::endl;
+        std::cin >> choice;
+    };
+    while(choice!=1 && choice!=2 && choice!=3 && choice!=4 && choice!=5){
+        clearterm();
+        menugraphic();
+    }
+    switch(choice){
+        case 1: //sj
+            clearterm();
+            citypicked = "sanjose";
+            startmenu();
+            break;
+        case 2: //sf
+            clearterm();
+            citypicked = "sanfrancisco";
+            startmenu();
+            break;
+        case 3: //sac
+            clearterm();
+            citypicked = "sacramento";
+            startmenu();
+            break;
+        case 4: //la
+            clearterm();
+            citypicked = "losangeles";
+            startmenu();
+            break;
+        case 5: //sd
+            clearterm();
+            citypicked = "sandiego";
+            startmenu();
+            break;
+        default:
+            clearterm();
+            choosecity();
+            break;
+    }
 };
 void citydata(){
+    size_t writeCallBack(char* data, size_t size, size_t nmemb, std::string* response){
+        response->append(data,size*nmemb);
+        return size*nmemb;
+    } 
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    CURL* curl = curl_easy_init();
+    std::string response;
     
+    auto usercitydata = [&response,&curl,&citypicked](){
+        if(curl)
+    }
 };
 
 void startmenu(){
@@ -52,12 +108,12 @@ void startmenu(){
                 break;
             default:
                 clearterm();
-                menugraphic();
                 break;    
         }
     }
 };
 
 int main(){
+    std::cout << "yea yea yea we up up up" << std::endl;
     startmenu();
 }
