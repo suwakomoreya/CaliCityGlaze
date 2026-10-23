@@ -25,10 +25,7 @@ size_t writeCallBack(char* data, size_t size, size_t nmemb, std::string* respons
     return size*nmemb;
 }
 //start
-int main(){
-    std::cout << "yea yea yea we up up up" << std::endl;
-    startmenu();
-}
+
 
 // other
 void clearterm(){
@@ -41,7 +38,7 @@ void clearterm(){
 
 // menus ui
 void startmenu(){
-    int choice;
+    int choice=0;
     auto menugraphic = [&choice](){
         std::cout <<
         R"(======================================
@@ -58,9 +55,21 @@ void startmenu(){
         menugraphic();
         switch(choice){
             case 1: //vc select
-                if((citypicked.empty())&&(statepicked.empty())){
+                if((citypicked.empty()) || (statepicked.empty())){
                     clearterm();
                     std::cout << "Please select a city and state first" << std::endl;
+                    menugraphic();
+                    break;
+                }
+                else if(citypicked.empty() && (statepicked.empty()!=1)){
+                    clearterm();
+                    std::cout << "Please select a city" << std::endl;
+                    menugraphic();
+                    break;
+                }
+                else if((citypicked.empty() !=1)&& (statepicked.empty())){
+                    clearterm();
+                    std::cout << "Please select a state" << std::endl;
                     menugraphic();
                     break;
                 }
@@ -90,12 +99,14 @@ void selectprovince(){ //states will have %2C%20 before it (, )
         std::cout << "---------"<< std::endl;
         std::cout << "---#input a u.s state ex. California" << std::endl;
         std::cout << "---------------" << std::endl;
-        std::getline(std::cin,choice);
+        // std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+        std::getline(std::cin >> std::ws, choice);
      };
-    while(choice.empty()&& choice.find(" ") != std::string::npos){
+    while((choice.empty()) || (choice.find(" ") != std::string::npos)){
         clearterm();
         menugraphic();
     }
+    statepicked = choice;
 }
 void usercity(){
     std::string choice;
@@ -103,7 +114,7 @@ void usercity(){
         std::cout << "-----------" << std::endl;
         std::cout << "---#input city name ex. San Jose " << std::endl;
         std::cout << "-------------" << std::endl;
-        std::getline(std::cin,choice);
+        std::getline(std::cin >> std::ws, choice);
     };
     while(choice.empty()){ //&& choice.find(" ") !=std::string::npos
         clearterm();
@@ -120,14 +131,14 @@ void usercity(){
 };
 
 void choosecity(){
-    int choice;
+    int choice =0;
     auto menugraphic = [&choice](){
         std::cout << "--------------" << std::endl;
         std::cout << "---#select a city" << std::endl;
         std::cout << "1. san jose" << std::endl;
         std::cout << "2. san francisco" << std::endl;
-        std::cout << "2. sacramento" << std::endl;
-        std::cout << "2. los angeles" << std::endl;
+        std::cout << "3. sacramento" << std::endl;
+        std::cout << "4. los angeles" << std::endl;
         std::cout << "5. san diego" << std::endl;
         std::cout << "--------------" << std::endl;
         std::cin >> choice;
@@ -207,8 +218,8 @@ void citydata(){
         json data = json::parse(usercorddata);
         
         //latlong
-        std::string latitudedata = data["lat"].get<std::string>();
-        std::string longitudedata = data["lon"].get<std::string>();
+        std::string latitudedata = data[0]["lat"].get<std::string>();
+        std::string longitudedata = data[0]["lon"].get<std::string>();
 
         curl_easy_setopt(curl,CURLOPT_URL,("https://api.open-meteo.com/v1/forecast?latitude="+latitudedata+"&longitude="+longitudedata+"&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,sunrise,sunset,uv_index_clear_sky_max,precipitation_probability_max&timezone=America%2FLos_Angeles&temperature_unit=fahrenheit").c_str());
         curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);

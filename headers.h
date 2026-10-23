@@ -18,3 +18,4 @@ void usercity();
 void choosecity();
 void citydata();
 void startmenu();
+void selectprovince();
