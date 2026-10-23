@@ -10,6 +10,10 @@ using json = nlohmann::json;
 int startMenuInput;
 std::string citypicked;
 std::string vacaycity;
+//data
+std::string usercitydata;
+std::string vacaycitydata;
+
 //call writecallback
 size_t writeCallBack(char* data, size_t size, size_t nmemb, std::string* response){
     response->append(data,size*nmemb);
@@ -28,14 +32,24 @@ void usercity(){
     std::string choice;
     auto menugraphic = [&choice](){
         std::cout << "-----------" << std::endl;
-        std::cout << "---#input city name ex. SanJose " << std::endl;
+        std::cout << "---#input city name ex. San Jose " << std::endl;
+        std::cout << "---#case-sensitive" << std::endl;
         std::cout << "-------------" << std::endl;
-        std::cin >> choice;
-    }
-    while(choice.empty() != 1 && choice.find(" ") !=std::string::npos){
+        std::getline(std::cin,choice);
+    };
+    while(choice.empty()){ //&& choice.find(" ") !=std::string::npos
         clearterm();
         menugraphic();
+    };
+    if(choice.find(" ") != std::string::npos){
+        size_t index = 0;
+        while((index=choice.find(' ', index))!= std::string::npos){
+            choice.replace(index,1,"%20");
+            index+=3;    
+        }
     }
+    citypicked = choice;
+
 };
 void choosecity(){
     int choice;
@@ -89,10 +103,8 @@ void choosecity(){
 void citydata(){
     curl_global_init(CURL_GLOBAL_DEFAULT);
     CURL* curl = curl_easy_init();
-    std::string usercitydata; // move globally after done
-    std::string vacaycitydata; // move globally after done
     //grab datas
-    auto grabvcdata = [&vacaycitydata,&curl](){
+    auto grabvcdata = [&curl](){
         if(curl){
             curl_easy_setopt(curl,CURLOPT_URL,cities.at(citypicked));
             curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
@@ -107,8 +119,8 @@ void citydata(){
             curl_easy_cleanup(curl);
         }
     };
-    auto grabucdata = [&usercitydata,&curl](){
-        // curl_easy_setopt(curl,CURLOPT_URLcities, ) cities.at(citypicked)? i need to figure out how i can get the users data based off location name
+    auto grabucdata = [&curl](){
+        curl_easy_setopt(curl,CURLOPT_URLcities, "" ) cities.at(citypicked)? //i need to figure out how i can get the users data based off location name
     };
 };
 
