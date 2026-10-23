@@ -10,6 +10,7 @@ using json = nlohmann::json;
 int startMenuInput;
 std::string citypicked;
 std::string vacaycity;
+std::string statepicked;
 //data
 std::string usercitydata;
 std::string vacaycitydata;
@@ -28,12 +29,26 @@ void clearterm(){
     #endif
 };
 // menus ui
+void selectprovince(){
+    //only gonna do us states for now
+    std::string choice;
+    auto menugraphic = [&choice](){
+        std::cout << "---------"<< std::endl;
+        std::cout << "---#input a u.s state ex. California" << std::endl;
+        std::cout << "---------------" << std::endl;
+        std::getline(std::cin,choice);
+     };
+    while(choice.empty()&& choice.find(" ") != std::string::npos){
+        clearterm();
+        menugraphic();
+    }
+    statepicked = choice;
+}
 void usercity(){
     std::string choice;
     auto menugraphic = [&choice](){
         std::cout << "-----------" << std::endl;
         std::cout << "---#input city name ex. San Jose " << std::endl;
-        std::cout << "---#case-sensitive" << std::endl;
         std::cout << "-------------" << std::endl;
         std::getline(std::cin,choice);
     };
@@ -49,7 +64,6 @@ void usercity(){
         }
     }
     citypicked = choice;
-
 };
 void choosecity(){
     int choice;
@@ -144,6 +158,10 @@ void startmenu(){
             case 2:
                 clearterm();
                 usercity();
+                break;
+            case 3:
+                clearterm();
+                selectprovince();
                 break;
             default:
                 clearterm();
