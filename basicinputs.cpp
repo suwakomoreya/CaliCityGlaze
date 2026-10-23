@@ -9,6 +9,7 @@ using json = nlohmann::json;
 //global vars
 int startMenuInput;
 std::string citypicked;
+std::string usercorddata;
 std::string vacaycity;
 std::string statepicked;
 //data
@@ -29,7 +30,7 @@ void clearterm(){
     #endif
 };
 // menus ui
-void selectprovince(){
+void selectprovince(){ //states will have %2C%20 before it (, )
     //only gonna do us states for now
     std::string choice;
     auto menugraphic = [&choice](){
@@ -42,7 +43,6 @@ void selectprovince(){
         clearterm();
         menugraphic();
     }
-    statepicked = choice;
 }
 void usercity(){
     std::string choice;
@@ -118,7 +118,7 @@ void citydata(){
     curl_global_init(CURL_GLOBAL_DEFAULT);
     CURL* curl = curl_easy_init();
     //grab datas
-    auto grabvcdata = [&curl](){
+    auto grabvcdata = [&curl](){ //grabs vacation city data
         if(curl){
             curl_easy_setopt(curl,CURLOPT_URL,cities.at(citypicked));
             curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
@@ -130,31 +130,53 @@ void citydata(){
             else{
                 std::cerr << curl_easy_strerror(result) << "\n";
             }
-            curl_easy_cleanup(curl);
         }
     };
-    auto grabucdata = [&curl](){
-        curl_easy_setopt(curl,CURLOPT_URLcities, "" ) cities.at(citypicked)? //i need to figure out how i can get the users data based off location name
+    auto grabucCORDdata = [&curl](){ //COORDINATE DATA not actaul city data. use this to get user city data
+        curl_easy_setopt(curl,CURLOPT_URL,("https://geocode.maps.co/search?q=" + citypicked + "%2C%20" + statepicked + "&api_key=6adab10ae89cc706096065wae95ed98").c_str()); // cities.at(citypicked)? //i need to figure out how i can get the users data based off location name
+        curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
+        curl_easy_setopt(curl,CURLOPT_WRITEDATA,&usercorddata);
+        CURLcode result = curl_easy_perform(curl);
+        if(result == CURLE_OK){
+            std::cout<< "User city data coordinates loaded" << "\n";
+        }
+        else{
+            std::cerr << curl_easy_strerror(result) << "\n";
+        }
     };
+
+    if(curl){
+        curl_easy_cleanup(curl);
+    }
+    curl_global_cleanup();
 };
 
 void startmenu(){
-    int choice; 
+    int choice =0; 
     auto menugraphic = [&choice](){
         std::cout << "--------------" << std::endl;
         std::cout << "---#sjryan" << std::endl;
         std::cout << "1. find out your vacay spot" << std::endl;
         std::cout << "2. choose your own city first" << std::endl;
+        std::cout << "3. choose your state first" << std::endl;
         std::cout << "--------------" << std::endl;
         std::cin >> choice;
     };
-    while(choice != 1 && choice != 2){
+    while(choice != 1 && choice != 2 && choice !=3){
         menugraphic();
         switch(choice){
             case 1:
-                clearterm();
-                choosecity();
-                break;
+                if((citypicked.empty()) && (statepicked.empty())){
+                    clearterm();
+                    std::cout << "Please select a city and state first" << std::endl;
+                    menugraphic();
+                    break;
+                }
+                else{
+                    clearterm();
+                    choosecity();
+                    break;
+                }
             case 2:
                 clearterm();
                 usercity();
@@ -168,7 +190,7 @@ void startmenu(){
                 break;    
         }
     }
-};
+}
 
 int main(){
     std::cout << "yea yea yea we up up up" << std::endl;
