@@ -129,7 +129,41 @@ void usercity(){
     }
     citypicked = choice;
 };
-
+void comparecity(){
+    int choice=0;
+    auto menugraphic[&choice](){
+        std::cout << "---------------------" << std::endl;
+        std::cout << "##Comparing Cities##" << std::endl;
+        std::cout << "User City: " + citypicked << std::endl;
+        std::cout << "Cali City: " + vacaycity << std::endl;
+        std::cout << "1. Temperature data" << std::endl;
+        std::cout << "2. Preciptation data" << std::endl;
+        std::cout << "3. Wind data" << std::endl;
+        std::cout << "4. Return to  CAcity select" << std::endl;
+        std::cin >> choice;
+    }
+    while(choice != 1 && choice !=2 && choice !=3){
+        menugraphic();
+        switch(choice){
+            case 1:
+                clearterm();
+                break;
+            case 2:
+                clearterm();
+                break;
+            case 3:
+                clearterm();
+                break;
+            case 4:
+                clearterm();
+                choosecity();
+                break;
+            default:
+                clearterm();
+                break;
+        }
+    }
+}
 void choosecity(){
     int choice =0;
     auto menugraphic = [&choice](){
@@ -153,21 +187,22 @@ void choosecity(){
         case 1: //sj
             clearterm();
             citypicked = "SanJose";
-            startmenu();
+            comparecity();
             break;
         case 2: //sf
             clearterm();
             citypicked = "SanFrancisco";
-            startmenu();
+            comparecity();
             break;
         case 3: //sac
             clearterm();
             citypicked = "Sacramento";
-            startmenu();
+            comparecity();
             break;
         case 4: //la
             clearterm();
             citypicked = "LosAngeles";
+            comparecity();
             startmenu();
             break;
         case 5: //sd
@@ -221,7 +256,7 @@ void citydata(){
         std::string latitudedata = data[0]["lat"].get<std::string>();
         std::string longitudedata = data[0]["lon"].get<std::string>();
 
-        curl_easy_setopt(curl,CURLOPT_URL,("https://api.open-meteo.com/v1/forecast?latitude="+latitudedata+"&longitude="+longitudedata+"&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,sunrise,sunset,uv_index_clear_sky_max,precipitation_probability_max&timezone=America%2FLos_Angeles&temperature_unit=fahrenheit").c_str());
+        curl_easy_setopt(curl,CURLOPT_URL,("https://api.open-meteo.com/v1/forecast?latitude="+latitudedata+"&longitude="+longitudedata+"&daily=temperature_2m_max,temperature_2m_mean,temperature_2m_min,wind_speed_10m_max,sunrise,sunset,uv_index_clear_sky_max,precipitation_probability_max&timezone=America%2FLos_Angeles&temperature_unit=fahrenheit").c_str());
         curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
         curl_easy_setopt(curl,CURLOPT_WRITEDATA,&usercitydata);
         CURLcode result = curl_easy_perform(curl);
@@ -238,3 +273,33 @@ void citydata(){
     }
     curl_global_cleanup();
 };
+
+//WEATHER DATA (make sure to combine all this into one function, either this ship or next ship.)
+void tempdata(){
+    json ucdata = json::parse(usercitydata);
+    json vcdata = json::parse(vacaycitydata);
+
+    // tempdailyminmax
+    int ucdailymin = ucdata[0]["temperature_2m_min"].get<int>();
+    int ucdailymean = ucdata[0]["temperature_2m_mean"].get<int>();
+    int ucdailymax = ucdata[0]["temperature_2m_max"].get<int>();
+
+    int vcdailymin = vcdata[0]["temperature_2m_min"].get<int>();
+    int vcdailymean = ucdata[0]["temperature_2m_mean"].get<int();
+    int vcdailymax = vcdata[0]["temperature_2m_max"].get<int>();
+//output (should turn into menugraphic)
+    std::cout << "-----------" << std::endl;
+    std::cout << citypicked + "'s minimum temperature today (F): " << ucdailymin << std::endl;
+    std::cout << citypicked + "'s maximum temperature today (F)" << ucdailymax << std::endl;
+    std::cout << "-----------" << std::endl;
+    std::cout << vacaycity + "'s minimum temperature today (F)" << vcdailymin << std::endl;
+    std::cout << vacaycity + "'s maximum temperature today (F)" << vcdailymax << std::endl;
+    std::cout << "-------------------" << std::endl;
+    if()
+}
+void precipdata(){
+
+}
+void winddata(){
+
+}
