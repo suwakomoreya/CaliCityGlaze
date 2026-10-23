@@ -8,6 +8,7 @@ using json = nlohmann::json;
 
 //global vars
 int startMenuInput;
+//userdata
 std::string citypicked;
 std::string usercorddata;
 std::string vacaycity;
@@ -15,12 +16,20 @@ std::string statepicked;
 //data
 std::string usercitydata;
 std::string vacaycitydata;
+//apikey
+std::string geocodekey = "&api_key=6adab10ae89cc706096065wae95ed98";
 
 //call writecallback
 size_t writeCallBack(char* data, size_t size, size_t nmemb, std::string* response){
     response->append(data,size*nmemb);
     return size*nmemb;
 }
+//start
+int main(){
+    std::cout << "yea yea yea we up up up" << std::endl;
+    startmenu();
+}
+
 // other
 void clearterm(){
     #ifdef _WIN32
@@ -29,7 +38,51 @@ void clearterm(){
         system("clear");
     #endif
 };
+
 // menus ui
+void startmenu(){
+    int choice;
+    auto menugraphic = [&choice](){
+        std::cout <<
+        R"(======================================
+                        SJ #1              
+        --------------------------------------
+        1. Compare CA cities with your City
+        2. Select your city                
+        3. Select your state
+        ======================================)"
+        << std::endl;
+        std::cin >> choice;
+    };
+    while(choice != 1 && choice !=2 && choice !=3){
+        menugraphic();
+        switch(choice){
+            case 1: //vc select
+                if((citypicked.empty())&&(statepicked.empty())){
+                    clearterm();
+                    std::cout << "Please select a city and state first" << std::endl;
+                    menugraphic();
+                    break;
+                }
+                else{
+                    clearterm();
+                    choosecity();
+                    break;
+                }
+            case 2: //ucselect
+                clearterm();
+                usercity();
+                break;
+            case 3://stateselect
+                clearterm();
+                selectprovince();
+                break;
+            default: //require valid input
+                clearterm();
+                break;
+        }
+    }
+}
 void selectprovince(){ //states will have %2C%20 before it (, )
     //only gonna do us states for now
     std::string choice;
@@ -65,6 +118,7 @@ void usercity(){
     }
     citypicked = choice;
 };
+
 void choosecity(){
     int choice;
     auto menugraphic = [&choice](){
@@ -78,10 +132,12 @@ void choosecity(){
         std::cout << "--------------" << std::endl;
         std::cin >> choice;
     };
+    //wrong input results in this
     while(choice!=1 && choice!=2 && choice!=3 && choice!=4 && choice!=5){
         clearterm();
         menugraphic();
     }
+
     switch(choice){
         case 1: //sj
             clearterm();
@@ -132,67 +188,42 @@ void citydata(){
             }
         }
     };
+
     auto grabucCORDdata = [&curl](){ //COORDINATE DATA not actaul city data. use this to get user city data
-        curl_easy_setopt(curl,CURLOPT_URL,("https://geocode.maps.co/search?q=" + citypicked + "%2C%20" + statepicked + "&api_key=6adab10ae89cc706096065wae95ed98").c_str()); // cities.at(citypicked)? //i need to figure out how i can get the users data based off location name
+        curl_easy_setopt(curl,CURLOPT_URL,("https://geocode.maps.co/search?q=" + citypicked + "%2C%20" + statepicked + geocodekey).c_str()); // cities.at(citypicked)? //i need to figure out how i can get the users data based off location name
         curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
         curl_easy_setopt(curl,CURLOPT_WRITEDATA,&usercorddata);
         CURLcode result = curl_easy_perform(curl);
         if(result == CURLE_OK){
-            std::cout<< "User city data coordinates loaded" << "\n";
+            std::cout<< "User city data coordinates loaded: " << citypicked << "\n";
         }
         else{
             std::cerr << curl_easy_strerror(result) << "\n";
         }
     };
 
+    auto grabucdata = [&curl](){
+        // parse data
+        json data = json::parse(usercorddata);
+        
+        //latlong
+        std::string latitudedata = data["lat"].get<std::string>();
+        std::string longitudedata = data["lon"].get<std::string>();
+
+        curl_easy_setopt(curl,CURLOPT_URL,("https://api.open-meteo.com/v1/forecast?latitude="+latitudedata+"&longitude="+longitudedata+"&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,sunrise,sunset,uv_index_clear_sky_max,precipitation_probability_max&timezone=America%2FLos_Angeles&temperature_unit=fahrenheit").c_str());
+        curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
+        curl_easy_setopt(curl,CURLOPT_WRITEDATA,&usercitydata);
+        CURLcode result = curl_easy_perform(curl);
+        if(result == CURLE_OK){
+            std::cout << "User city data loaded: " << citypicked << "\n";
+        }
+        else{
+            std::cerr << curl_easy_strerror(result) << "\n";
+        }
+        
+    };
     if(curl){
         curl_easy_cleanup(curl);
     }
     curl_global_cleanup();
 };
-
-void startmenu(){
-    int choice =0; 
-    auto menugraphic = [&choice](){
-        std::cout << "--------------" << std::endl;
-        std::cout << "---#sjryan" << std::endl;
-        std::cout << "1. find out your vacay spot" << std::endl;
-        std::cout << "2. choose your own city first" << std::endl;
-        std::cout << "3. choose your state first" << std::endl;
-        std::cout << "--------------" << std::endl;
-        std::cin >> choice;
-    };
-    while(choice != 1 && choice != 2 && choice !=3){
-        menugraphic();
-        switch(choice){
-            case 1:
-                if((citypicked.empty()) && (statepicked.empty())){
-                    clearterm();
-                    std::cout << "Please select a city and state first" << std::endl;
-                    menugraphic();
-                    break;
-                }
-                else{
-                    clearterm();
-                    choosecity();
-                    break;
-                }
-            case 2:
-                clearterm();
-                usercity();
-                break;
-            case 3:
-                clearterm();
-                selectprovince();
-                break;
-            default:
-                clearterm();
-                break;    
-        }
-    }
-}
-
-int main(){
-    std::cout << "yea yea yea we up up up" << std::endl;
-    startmenu();
-}
