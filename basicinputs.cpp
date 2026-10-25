@@ -51,7 +51,7 @@ void startmenu(){
         << std::endl;
         std::cin >> choice;
     };
-    while(choice != 1 && choice !=2 && choice !=3){
+    while(true){
         menugraphic();
         switch(choice){
             case 1: //vc select
@@ -102,6 +102,7 @@ void selectprovince(){ //states will have %2C%20 before it (, )
         menugraphic();
     }
     statepicked = choice;
+    std::cout << "state selected" <<std::endl;
 }
 void usercity(){
     std::string choice;
@@ -123,6 +124,7 @@ void usercity(){
         }
     }
     citypicked = choice;
+    std::cout << "city selecterd" << std::endl;
 };
 void comparecity(){
     int choice=0;
@@ -219,11 +221,17 @@ void choosecity(){
     }
 };
 void citydata(){
+    std::cout << "citydata entering" << std::endl;
     usercorddata.clear();
     usercitydata.clear();
     vacaycitydata.clear();
     curl_global_init(CURL_GLOBAL_DEFAULT);
     CURL* curl = curl_easy_init();
+    if(!curl){
+        std::cerr << "Could not initialize CURL." << std::endl;
+        curl_global_cleanup();
+        return;
+    }
     //grab datas
     auto grabvcdata = [&curl](){ //grabs vacation city data
         if(curl){
@@ -255,13 +263,17 @@ void citydata(){
 
     auto grabucdata = [&curl](){
         // parse data
-        json data = json::parse(usercorddata);
+        json data = json::parse(usercorddata, nullptr, false);
+        if(data.is_discarded() || !data.is_array() || data.empty() || !data[0].contains("lat") || !data[0].contains("lon")){
+            std::cerr << "Couldn't find coord data" << std::endl;
+            return;
+        }
         
         //latlong
         std::string latitudedata = data[0]["lat"].get<std::string>();
         std::string longitudedata = data[0]["lon"].get<std::string>();
 
-        curl_easy_setopt(curl,CURLOPT_URL,("https://api.open-meteo.com/v1/forecast?latitude="+latitudedata+"&longitude="+longitudedata+"&daily=temperature_2m_max,temperature_2m_mean,temperature_2m_min,wind_speed_10m_max,sunrise,sunset,uv_index_clear_sky_max,precipitation_probability_max&timezone=America%2FLos_Angeles&temperature_unit=fahrenheit").c_str());
+        curl_easy_setopt(curl,CURLOPT_URL,("https://api.open-meteo.com/v1/forecast?latitude="+latitudedata+"&longitude="+longitudedata+"&daily=temperature_2m_max,temperature_2m_mean,temperature_2m_min,wind_speed_10m_max,sunrise,sunset,uv_index_clear_sky_max,precipitation_probability_max,precipitation_sum&hourly=wind_speed_10m&timezone=America%2FLos_Angeles&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch").c_str());
         curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
         curl_easy_setopt(curl,CURLOPT_WRITEDATA,&usercitydata);
         CURLcode result = curl_easy_perform(curl);
@@ -310,7 +322,7 @@ void tempdata(){
         else if(ucdailymean >70.0 && ucdailymean <85.0 ){
             std::cout << "Stay at home if you prefer the more warmer and chill days." <<std::endl;
         }
-        else if(ucdailymax>85.0){
+        else if(ucdailymean>85.0){
             std::cout << "Stay at home if you prefer hotter days." <<std::endl;
         }
         
@@ -429,6 +441,9 @@ void winddata(){ // all 10m above ground
 }
 // wow i didnt even know i didnt have a int main... swore i had one
 int main(){
+    std::cout << "startapp" << std::endl;
     startmenu();
+    std::cout << "startmen died" << std::endl;
+    std::cin.get();
     return 0;
 }
