@@ -16,6 +16,10 @@ std::string statepicked;
 //data
 std::string usercitydata;
 std::string vacaycitydata;
+
+std::string citypickedid;
+std::string statepickedid;
+
 //apikey
 std::string geocodekey = "&api_key=6adab10ae89cc706096065wae95ed98";
 
@@ -97,11 +101,19 @@ void selectprovince(){ //states will have %2C%20 before it (, )
         // std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
         std::getline(std::cin >> std::ws, choice);
     };
-    while((choice.empty()) || (choice.find(" ") != std::string::npos)){
+    while((choice.empty())){ //(choice.find(" ") != std::string::npos)
         clearterm();
         menugraphic();
     }
     statepicked = choice;
+    if(choice.find(" ") != std::string::npos){
+        size_t index = 0;
+        while(index=choice.find(' ', index) != std::string::npos){
+            choice.replace(index,1,"%20");
+            index+=3;
+        }
+    }
+    statepickedid = choice;
     std::cout << "state selected" <<std::endl;
 }
 void usercity(){
@@ -116,6 +128,7 @@ void usercity(){
         clearterm();
         menugraphic();
     };
+    citypicked = choice;
     if(choice.find(" ") != std::string::npos){
         size_t index = 0;
         while((index=choice.find(' ', index))!= std::string::npos){
@@ -123,8 +136,8 @@ void usercity(){
             index+=3;    
         }
     }
-    citypicked = choice;
-    std::cout << "city selecterd" << std::endl;
+    citypickedid = choice;
+    std::cout << "city selected" << std::endl;
 };
 void comparecity(){
     int choice=0;
@@ -136,7 +149,7 @@ void comparecity(){
         std::cout << "1. Temperature data" << std::endl;
         std::cout << "2. Preciptation data" << std::endl;
         std::cout << "3. Wind data" << std::endl;
-        std::cout << "4. Return to  CAcity select" << std::endl;
+        std::cout << "4. Return to CA city select" << std::endl;
         std::cin >> choice;
     };
     while(choice != 1 && choice !=2 && choice !=3 && choice!=4){
@@ -169,11 +182,11 @@ void choosecity(){
     auto menugraphic = [&choice](){
         std::cout << "--------------" << std::endl;
         std::cout << "---#select a city" << std::endl;
-        std::cout << "1. san jose" << std::endl;
-        std::cout << "2. san francisco" << std::endl;
-        std::cout << "3. sacramento" << std::endl;
-        std::cout << "4. los angeles" << std::endl;
-        std::cout << "5. san diego" << std::endl;
+        std::cout << "1. San Jose" << std::endl;
+        std::cout << "2. San Francisco" << std::endl;
+        std::cout << "3. Sacramento" << std::endl;
+        std::cout << "4. Los Angeles" << std::endl;
+        std::cout << "5. San Diego" << std::endl;
         std::cout << "--------------" << std::endl;
         std::cin >> choice;
     };
@@ -235,7 +248,7 @@ void citydata(){
     //grab datas
     auto grabvcdata = [&curl](){ //grabs vacation city data
         if(curl){
-            curl_easy_setopt(curl,CURLOPT_URL,cities.at(vacaycity));
+            curl_easy_setopt(curl,CURLOPT_URL,cities.at(vacaycity).c_str());
             curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
             curl_easy_setopt(curl,CURLOPT_WRITEDATA,&vacaycitydata);
             CURLcode result = curl_easy_perform(curl);
@@ -249,7 +262,7 @@ void citydata(){
     };
 
     auto grabucCORDdata = [&curl](){ //COORDINATE DATA not actaul city data. use this to get user city data
-        curl_easy_setopt(curl,CURLOPT_URL,("https://geocode.maps.co/search?q=" + citypicked + "%2C%20" + statepicked + geocodekey).c_str()); // cities.at(citypicked)? //i need to figure out how i can get the users data based off location name
+        curl_easy_setopt(curl,CURLOPT_URL,("https://geocode.maps.co/search?q=" + citypickedid + "%2C%20" + statepickedid + geocodekey).c_str()); // cities.at(citypicked)? //i need to figure out how i can get the users data based off location name
         curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
         curl_easy_setopt(curl,CURLOPT_WRITEDATA,&usercorddata);
         CURLcode result = curl_easy_perform(curl);
