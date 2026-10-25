@@ -57,20 +57,15 @@ void startmenu(){
             case 1: //vc select
                 if((citypicked.empty()) || (statepicked.empty())){
                     clearterm();
-                    std::cout << "Please select a city and state first" << std::endl;
-                    menugraphic();
-                    break;
-                }
-                else if(citypicked.empty() && (statepicked.empty()!=1)){
-                    clearterm();
-                    std::cout << "Please select a city" << std::endl;
-                    menugraphic();
-                    break;
-                }
-                else if((citypicked.empty() !=1)&& (statepicked.empty())){
-                    clearterm();
-                    std::cout << "Please select a state" << std::endl;
-                    menugraphic();
+                    if(citypicked.empty() && statepicked.empty()){
+                        std::cout << "Please select a city and state first.\n";
+                    }
+                    else if(citypicked.empty()){
+                        std::cout << "Please select a city first.\n";
+                    }
+                    else if(statepicked.empty()){
+                        std::cout << "Please select a state first.\n";
+                    }
                     break;
                 }
                 else{
@@ -101,7 +96,7 @@ void selectprovince(){ //states will have %2C%20 before it (, )
         std::cout << "---------------" << std::endl;
         // std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
         std::getline(std::cin >> std::ws, choice);
-     };
+    };
     while((choice.empty()) || (choice.find(" ") != std::string::npos)){
         clearterm();
         menugraphic();
@@ -142,17 +137,20 @@ void comparecity(){
         std::cout << "4. Return to  CAcity select" << std::endl;
         std::cin >> choice;
     };
-    while(choice != 1 && choice !=2 && choice !=3){
+    while(choice != 1 && choice !=2 && choice !=3 && choice!=4){
         menugraphic();
         switch(choice){
             case 1:
                 clearterm();
+                tempdata();
                 break;
             case 2:
                 clearterm();
+                precipdata();
                 break;
             case 3:
                 clearterm();
+                winddata();
                 break;
             case 4:
                 clearterm();
@@ -186,28 +184,32 @@ void choosecity(){
     switch(choice){
         case 1: //sj
             clearterm();
-            citypicked = "SanJose";
+            vacaycity = "SanJose";
+            citydata();
             comparecity();
             break;
         case 2: //sf
             clearterm();
-            citypicked = "SanFrancisco";
+            vacaycity = "SanFrancisco";
+            citydata();
             comparecity();
             break;
         case 3: //sac
             clearterm();
-            citypicked = "Sacramento";
+            vacaycity = "Sacramento";
+            citydata();
             comparecity();
             break;
         case 4: //la
             clearterm();
-            citypicked = "LosAngeles";
+            vacaycity = "LosAngeles";
+            citydata();
             comparecity();
-            startmenu();
             break;
         case 5: //sd
             clearterm();
-            citypicked = "SanDiego";
+            vacaycity = "SanDiego";
+            citydata();
             comparecity();
             break;
         default:
@@ -217,17 +219,20 @@ void choosecity(){
     }
 };
 void citydata(){
+    usercorddata.clear();
+    usercitydata.clear();
+    vacaycitydata.clear();
     curl_global_init(CURL_GLOBAL_DEFAULT);
     CURL* curl = curl_easy_init();
     //grab datas
     auto grabvcdata = [&curl](){ //grabs vacation city data
         if(curl){
-            curl_easy_setopt(curl,CURLOPT_URL,cities.at(citypicked));
+            curl_easy_setopt(curl,CURLOPT_URL,cities.at(vacaycity));
             curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
             curl_easy_setopt(curl,CURLOPT_WRITEDATA,&vacaycitydata);
             CURLcode result = curl_easy_perform(curl);
             if(result == CURLE_OK){
-                std::cout<< "City data loaded: " << cities.at(citypicked) << "\n";
+                std::cout<< "City data loaded: " << cities.at(vacaycity) << "\n";
             }
             else{
                 std::cerr << curl_easy_strerror(result) << "\n";
@@ -268,6 +273,9 @@ void citydata(){
         }
         
     };
+    grabvcdata();
+    grabucCORDdata();
+    grabucdata();
     if(curl){
         curl_easy_cleanup(curl);
     }
@@ -279,14 +287,15 @@ void tempdata(){
     json ucdata = json::parse(usercitydata);
     json vcdata = json::parse(vacaycitydata);
     int choice = 0;
-    auto menugraphic = [&choice,&vcdata, &ucdata](){
-        double ucdailymin = ucdata[0]["temperature_2m_min"].get<double>();
-        double ucdailymean = ucdata[0]["temperature_2m_mean"].get<double>();
-        double ucdailymax = ucdata[0]["temperature_2m_max"].get<double>();
+    double ucdailymin = ucdata["daily"]["temperature_2m_min"][0].get<double>();
+    double ucdailymean = ucdata["daily"]["temperature_2m_mean"][0].get<double>();
+    double ucdailymax = ucdata["daily"]["temperature_2m_max"][0].get<double>();
+    
+    double vcdailymin =vcdata["daily"]["temperature_2m_min"][0].get<double>();
+    double vcdailymean =vcdata["daily"]["temperature_2m_mean"][0].get<double>();
+    double vcdailymax =vcdata["daily"]["temperature_2m_max"][0].get<double>();
 
-        double vcdailymin = ucdata[0]["temperature_2m_min"].get<double>();
-        double vcdailymean = ucdata[0]["temperature_2m_mean"].get<double>();
-        double vcdailymax = ucdata[0]["temperature_2m_max"].get<double>();
+    auto menugraphic = [&choice,&ucdailymin,&ucdailymean,&ucdailymax,&vcdailymin,&vcdailymean,&vcdailymax](){
         //output 
         std::cout << "-----------------" << std::endl;
         std::cout << citypicked + "'s minimum temperature today (F): " << ucdailymin << std::endl;
@@ -295,14 +304,13 @@ void tempdata(){
         std::cout << vacaycity + "'s minimum temperature today (F)" << vcdailymin << std::endl;
         std::cout << vacaycity + "'s maximum temperature today (F)" << vcdailymax << std::endl;
         std::cout << "---------------------------------" << std::endl;
-
         if(ucdailymean <= 70.0){
             std::cout << "Stay at home if you prefer the colder days." << std::endl;
         }
         else if(ucdailymean >70.0 && ucdailymean <85.0 ){
             std::cout << "Stay at home if you prefer the more warmer and chill days." <<std::endl;
         }
-        else if(ucdailymean>85){
+        else if(ucdailymax>85.0){
             std::cout << "Stay at home if you prefer hotter days." <<std::endl;
         }
         
@@ -317,6 +325,7 @@ void tempdata(){
         }
         std::cout << "1. Return to city comparison" <<std::endl;
         std::cout << "2. Return to menu screen" << std::endl;
+        std::cin >> choice;
     };
     while(choice !=1 && choice !=2){
         clearterm();
@@ -341,25 +350,24 @@ void precipdata(){
     int choice =0;
     json ucdata = json::parse(usercitydata);
     json vcdata = json::parse(vacaycitydata);
-    double ucmaxchance = ucdata[0]["precipitation_probability_max"].get<double>();
-    double ucprecipsum = ucdata[0]["precipitation_sum"].get<double>(); //need to add this to the links later
+    double ucmaxchance = ucdata["daily"]["precipitation_probability_max"][0].get<double>();
+    double ucprecipsum = ucdata["daily"]["precipitation_sum"][0].get<double>(); //need to add this to the links later
 
-    double vcmaxchance = ucdata[0]["precipitation_probability_max"].get<double>();
-    double vcprecipsum = ucdata[0]["precipitation_sum"].get<double>();
-
+    double vcmaxchance = vcdata["daily"]["precipitation_probability_max"][0].get<double>();
+    double vcprecipsum = vcdata["daily"]["precipitation_sum"][0].get<double>();
     auto menugraphic = [&choice, &ucmaxchance, &ucprecipsum, &vcmaxchance,&vcprecipsum](){
         std::cout << "------------------------" << std::endl;
-        std::cout << "Chance of preciptation today at your city (" + citypicked + "): " + ucmaxchance << std::endl;
-        std::cout << "Inches of rain today: " + ucprecipsum << std::endl;
+        std::cout << "Chance of preciptation today at your city (" << citypicked << "): " << ucmaxchance << std::endl;
+        std::cout << "Inches of rain today: " << ucprecipsum << std::endl;
         std::cout << "------------------" << std::endl;
-        std::cout << "Chance of preciptation today at " + vacaycity + ": " + vcmaxchance << std::endl;
-        std::cout << "Inches of rain today at " + vacaycity + ": " + vcprecipsum << std::endl;
+        std::cout << "Chance of preciptation today at " << vacaycity << ": " << vcmaxchance << std::endl;
+        std::cout << "Inches of rain today at " << vacaycity << ": " << vcprecipsum << std::endl;
         std::cout << "--------------------" << std::endl;
         std::cout << "1. Return to city comparison" << std::endl;
         std::cout << "2. Return to start menu" << std::endl;
         std::cin >> choice;
-    }
-    while(choice != 1&& choice!=2){
+    };
+    while(choice != 1 && choice!=2){
         clearterm();
         menugraphic();
     }
@@ -383,12 +391,12 @@ void winddata(){ // all 10m above ground
     json ucdata = json::parse(usercitydata); 
     json vcdata = json::parse(vacaycitydata);
 
-    double ucwspeedhour = ucdata[0]["wind_speed_10m"].get<double(); // hourly 
-    double ucwspeedmax = ucdata[0]["wind_speed_10m_max"].get<double>();
+    double ucwspeedhour = ucdata["hourly"]["wind_speed_10m"][0].get<double>(); // hourly and need to add to urls
+    double ucwspeedmax = ucdata["daily"]["wind_speed_10m_max"][0].get<double>();
 
-    double vcwspeedhour = ucdata[0]["wind_speed_10m"].get<double>();
-    double vcwspeedmax = ucdata[0]["wind_speed_10m_max"].get<double>();
-    auto menugraphic = [&choice,&ucwspeedhour,&ucwspeedmax,&vcwspeedhour,vcwspeedmax](){
+    double vcwspeedhour = ucdata["hourly"]["wind_speed_10m"][0].get<double>();
+    double vcwspeedmax = ucdata["daily"]["wind_speed_10m_max"][0].get<double>();
+    auto menugraphic = [&choice,&ucwspeedhour,&ucwspeedmax,&vcwspeedhour,&vcwspeedmax](){
         std::cout << "-----------------" << std::endl;
         std::cout << "Current wind speed 10 meters off the ground in your city: " << ucwspeedhour << std::endl;
         std::cout << "Fastest wind speed today 10 meters off the ground: " << ucwspeedmax << std::endl;
@@ -399,8 +407,8 @@ void winddata(){ // all 10m above ground
         std::cout << "1. Return to city comparison" << std::endl;
         std::cout << "2. Return to start menu" << std::endl;
         std::cin >> choice;
-    }
-    while(choice !=1 && choice!=2){
+    };
+    while(choice !=1 && choice !=2){
         clearterm();
         menugraphic();
     }
@@ -418,4 +426,9 @@ void winddata(){ // all 10m above ground
         menugraphic();
         break;
     }
+}
+// wow i didnt even know i didnt have a int main... swore i had one
+int main(){
+    startmenu();
+    return 0;
 }
