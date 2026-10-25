@@ -131,7 +131,7 @@ void usercity(){
 };
 void comparecity(){
     int choice=0;
-    auto menugraphic[&choice](){
+    auto menugraphic = [&choice](){
         std::cout << "---------------------" << std::endl;
         std::cout << "##Comparing Cities##" << std::endl;
         std::cout << "User City: " + citypicked << std::endl;
@@ -141,7 +141,7 @@ void comparecity(){
         std::cout << "3. Wind data" << std::endl;
         std::cout << "4. Return to  CAcity select" << std::endl;
         std::cin >> choice;
-    }
+    };
     while(choice != 1 && choice !=2 && choice !=3){
         menugraphic();
         switch(choice){
@@ -278,24 +278,64 @@ void citydata(){
 void tempdata(){
     json ucdata = json::parse(usercitydata);
     json vcdata = json::parse(vacaycitydata);
+    int choice = 0;
+    auto menugraphic = [&vcdata, &ucdata](){
+        double ucdailymin = ucdata[0]["temperature_2m_min"].get<double>();
+        double ucdailymean = ucdata[0]["temperature_2m_mean"].get<double>();
+        double ucdailymax = ucdata[0]["temperature_2m_max"].get<double>();
 
-    // tempdailyminmax
-    int ucdailymin = ucdata[0]["temperature_2m_min"].get<int>();
-    int ucdailymean = ucdata[0]["temperature_2m_mean"].get<int>();
-    int ucdailymax = ucdata[0]["temperature_2m_max"].get<int>();
+        double vcdailymin = ucdata[0]["temperature_2m_min"].get<double>();
+        double vcdailymean = ucdata[0]["temperature_2m_mean"].get<double>();
+        double vcdailymax = ucdata[0]["temperature_2m_max"].get<double>();
+        //output 
+        std::cout << "-----------------" << std::endl;
+        std::cout << citypicked + "'s minimum temperature today (F): " << ucdailymin << std::endl;
+        std::cout << citypicked + "'s maximum temperature today (F): " << ucdailymax << std::endl;
+        std::cout << "------------------------" << std::endl;
+        std::cout << vacaycity + "'s minimum temperature today (F)" << vcdailymin << std::endl;
+        std::cout << vacaycity + "'s maximum temperature today (F)" << vcdailymax << std::endl;
+        std::cout << "---------------------------------" << std::endl;
 
-    int vcdailymin = vcdata[0]["temperature_2m_min"].get<int>();
-    int vcdailymean = ucdata[0]["temperature_2m_mean"].get<int();
-    int vcdailymax = vcdata[0]["temperature_2m_max"].get<int>();
-//output (should turn into menugraphic)
-    std::cout << "-----------" << std::endl;
-    std::cout << citypicked + "'s minimum temperature today (F): " << ucdailymin << std::endl;
-    std::cout << citypicked + "'s maximum temperature today (F)" << ucdailymax << std::endl;
-    std::cout << "-----------" << std::endl;
-    std::cout << vacaycity + "'s minimum temperature today (F)" << vcdailymin << std::endl;
-    std::cout << vacaycity + "'s maximum temperature today (F)" << vcdailymax << std::endl;
-    std::cout << "-------------------" << std::endl;
-    if()
+        if(ucdailymean <= 70.0){
+            std::cout << "Stay at home if you prefer the colder days." << std::endl;
+        }
+        else if(ucdailymean >70.0 && ucdailymean <85.0 ){
+            std::cout << "Stay at home if you prefer the more warmer and chill days." <<std::endl;
+        }
+        else if(ucdailymean>85){
+            std::cout << "Stay at home if you prefer hotter days." <<std::endl;
+        }
+        
+        if(vcdailymean <= 70.0){
+            std::cout << "Head out to " + vacaycity << "if you want a nice cool day." <<std::endl;
+        }
+        else if(vcdailymean >70.0 && vcdailymean <85.0){
+            std::cout << "Head out to " + vacaycity << " if you want a nice warm day." << std::endl;
+        }
+        else if(vcdailymax >85.0){
+            std::cout << "Head out to " + vacaycity << " if you want a nice warm day." << std::endl;
+        }
+        std::cout << "1. Return to city comparison" <<std::endl;
+        std::cout << "2. Return to menu screen" << std::endl;
+    };
+    while(choice !=1 && choice !=2){
+        clearterm();
+        menugraphic();
+    }
+    switch(choice){
+        case 1:
+            clearterm();
+            comparecity();
+            break;
+        case 2:
+            clearterm();
+            startmenu();
+            break;
+        default:
+            clearterm();
+            menugraphic();
+            break;
+    }
 }
 void precipdata(){
 

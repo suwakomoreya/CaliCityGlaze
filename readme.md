@@ -2,6 +2,7 @@ calicityglaze is a terminal app that tracks recent data of californian cities an
 
 https://www.census.gov/data/developers.html
 https://open-meteo.com/en/docs
+https://geocode.maps.co/docs/endpoints/
 
 1. create basics
 2. create ui with pdcurses?
