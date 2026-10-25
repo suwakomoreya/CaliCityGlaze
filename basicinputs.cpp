@@ -279,7 +279,7 @@ void tempdata(){
     json ucdata = json::parse(usercitydata);
     json vcdata = json::parse(vacaycitydata);
     int choice = 0;
-    auto menugraphic = [&vcdata, &ucdata](){
+    auto menugraphic = [&choice,&vcdata, &ucdata](){
         double ucdailymin = ucdata[0]["temperature_2m_min"].get<double>();
         double ucdailymean = ucdata[0]["temperature_2m_mean"].get<double>();
         double ucdailymax = ucdata[0]["temperature_2m_max"].get<double>();
@@ -338,7 +338,19 @@ void tempdata(){
     }
 }
 void precipdata(){
+    int choice =0;
+    json ucdata = json::parse(usercitydata);
+    json vcdata = json::parse(vacaycitydata);
+    double ucmaxchance = ucdata[0]["precipitation_probability_max"].get<double>();
+    double ucprecipsum = ucdata[0]["precipitation_sum"].get<double>(); //need to add this to the links later
 
+    double vcmaxchance = ucdata[0]["precipitation_probability_max"].get<double>();
+    double vcprecipsum = ucdata[0]["precipitation_sum"].get<double>();
+
+    auto menugraphic = [&choice, &ucmaxchance, &ucprecipsum, &vcmaxchance,&vcprecipsum](){
+        std::cout << "------------------------" << std::endl;
+        std::cout << "Chance of preciptation today at your city (" + userci
+    }
 }
 void winddata(){
 
