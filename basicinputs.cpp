@@ -208,7 +208,7 @@ void choosecity(){
         case 5: //sd
             clearterm();
             citypicked = "SanDiego";
-            startmenu();
+            comparecity();
             break;
         default:
             clearterm();
