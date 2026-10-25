@@ -349,9 +349,73 @@ void precipdata(){
 
     auto menugraphic = [&choice, &ucmaxchance, &ucprecipsum, &vcmaxchance,&vcprecipsum](){
         std::cout << "------------------------" << std::endl;
-        std::cout << "Chance of preciptation today at your city (" + userci
+        std::cout << "Chance of preciptation today at your city (" + citypicked + "): " + ucmaxchance << std::endl;
+        std::cout << "Inches of rain today: " + ucprecipsum << std::endl;
+        std::cout << "------------------" << std::endl;
+        std::cout << "Chance of preciptation today at " + vacaycity + ": " + vcmaxchance << std::endl;
+        std::cout << "Inches of rain today at " + vacaycity + ": " + vcprecipsum << std::endl;
+        std::cout << "--------------------" << std::endl;
+        std::cout << "1. Return to city comparison" << std::endl;
+        std::cout << "2. Return to start menu" << std::endl;
+        std::cin >> choice;
+    }
+    while(choice != 1&& choice!=2){
+        clearterm();
+        menugraphic();
+    }
+    switch(choice){
+        case 1:
+            clearterm();
+            comparecity();
+            break;
+        case 2:
+            clearterm();
+            startmenu();
+            break;
+        default:
+            clearterm();
+            menugraphic();
+            break;
     }
 }
-void winddata(){
+void winddata(){ // all 10m above ground
+    int choice =0;
+    json ucdata = json::parse(usercitydata); 
+    json vcdata = json::parse(vacaycitydata);
 
+    double ucwspeedhour = ucdata[0]["wind_speed_10m"].get<double(); // hourly 
+    double ucwspeedmax = ucdata[0]["wind_speed_10m_max"].get<double>();
+
+    double vcwspeedhour = ucdata[0]["wind_speed_10m"].get<double>();
+    double vcwspeedmax = ucdata[0]["wind_speed_10m_max"].get<double>();
+    auto menugraphic = [&choice,&ucwspeedhour,&ucwspeedmax,&vcwspeedhour,vcwspeedmax](){
+        std::cout << "-----------------" << std::endl;
+        std::cout << "Current wind speed 10 meters off the ground in your city: " << ucwspeedhour << std::endl;
+        std::cout << "Fastest wind speed today 10 meters off the ground: " << ucwspeedmax << std::endl;
+        std::cout << "-------------------" << std::endl;
+        std::cout << "Current wind speed in " + vacaycity + ": " << vcwspeedhour << std::endl;
+        std::cout << "Fastest wind speed today in " + vacaycity + ": " << vcwspeedmax << std::endl;
+        std::cout << "-----------------------------" << std::endl;
+        std::cout << "1. Return to city comparison" << std::endl;
+        std::cout << "2. Return to start menu" << std::endl;
+        std::cin >> choice;
+    }
+    while(choice !=1 && choice!=2){
+        clearterm();
+        menugraphic();
+    }
+    switch(choice){
+        case 1:
+            clearterm();
+            comparecity();
+            break;
+        case 2:
+            clearterm();
+            startmenu();
+            break;
+        default:
+        clearterm();
+        menugraphic();
+        break;
+    }
 }
