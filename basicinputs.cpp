@@ -27,7 +27,7 @@ std::string speedlink = "&wind_speed_unit=mph";
 std::string templink = "&temperature_unit=fahrenheit";
 
 //apikey
-std::string geocodekey = "&api_key=6adab10ae89cc706096065wae95ed98";
+std::string geocodekey = "your api key";
 
 //call writecallback
 size_t writeCallBack(char* data, size_t size, size_t nmemb, std::string* response){
