@@ -424,6 +424,7 @@ void citydata(){
         if(curl){
             std::string url = cities.at(vacaycity) + templink + speedlink + measurelink;
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_CAINFO, "curl-ca-bundle.crt");
             curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
             curl_easy_setopt(curl,CURLOPT_WRITEDATA,&vacaycitydata);
             CURLcode result = curl_easy_perform(curl);
@@ -438,6 +439,7 @@ void citydata(){
 
     auto grabucCORDdata = [&curl](){ //COORDINATE DATA not actaul city data. use this to get user city data
         curl_easy_setopt(curl,CURLOPT_URL,("https://geocode.maps.co/search?q=" + citypickedid + "%2C%20" + statepickedid + geocodekey).c_str()); // cities.at(citypicked)? //i need to figure out how i can get the users data based off location name
+        curl_easy_setopt(curl, CURLOPT_CAINFO, "curl-ca-bundle.crt");
         curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
         curl_easy_setopt(curl,CURLOPT_WRITEDATA,&usercorddata);
         CURLcode result = curl_easy_perform(curl);
@@ -462,6 +464,7 @@ void citydata(){
         std::string longitudedata = data[0]["lon"].get<std::string>();
 
         curl_easy_setopt(curl,CURLOPT_URL,("https://api.open-meteo.com/v1/forecast?latitude="+latitudedata+"&longitude="+longitudedata+"&daily=temperature_2m_max,temperature_2m_mean,temperature_2m_min,wind_speed_10m_max,sunrise,sunset,uv_index_clear_sky_max,precipitation_probability_max,precipitation_sum&hourly=wind_speed_10m&timezone=America%2FLos_Angeles"+templink+speedlink+measurelink).c_str());
+        curl_easy_setopt(curl, CURLOPT_CAINFO, "curl-ca-bundle.crt");
         curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
         curl_easy_setopt(curl,CURLOPT_WRITEDATA,&usercitydata);
         CURLcode result = curl_easy_perform(curl);
