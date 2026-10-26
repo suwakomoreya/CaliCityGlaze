@@ -6,8 +6,7 @@
 #include <cstdlib>
 using json = nlohmann::json;
 
-//global vars
-int startMenuInput;
+
 //userdata
 std::string citypicked;
 std::string usercorddata;
@@ -16,9 +15,16 @@ std::string statepicked;
 //data
 std::string usercitydata;
 std::string vacaycitydata;
-
 std::string citypickedid;
 std::string statepickedid;
+// units
+std::string measurement = "in";
+std::string speed = "mph";
+std::string temp = "F";
+
+std::string measurelink = "&precipitation_unit=inch";
+std::string speedlink = "&wind_speed_unit=mph";
+std::string templink = "&temperature_unit=fahrenheit";
 
 //apikey
 std::string geocodekey = "&api_key=6adab10ae89cc706096065wae95ed98";
@@ -28,10 +34,8 @@ size_t writeCallBack(char* data, size_t size, size_t nmemb, std::string* respons
     response->append(data,size*nmemb);
     return size*nmemb;
 }
-//start
 
-
-// other
+// clearwindows
 void clearterm(){
     #ifdef _WIN32
         system("cls");
@@ -41,18 +45,179 @@ void clearterm(){
 };
 
 // menus ui
+void unitscr(){
+    int choice = 0;
+
+    auto menugraphic = [&choice](){
+        std::cout << "======================================" << std::endl;
+        std::cout << "   What unit will you be changing?    " << std::endl;
+        std::cout << "--------------------------------------" << std::endl;
+        std::cout << "1. Temperature (F/C)" << std::endl;
+        std::cout << "2. Rainfall (in/cm)" << std::endl;
+        std::cout << "3. Wind speed (mph/km/ms)" << std::endl;
+        std::cout << "4. Return to menu screen" << std::endl;
+        std::cout << "======================================" << std::endl << ">. ";
+        std::cin >> choice; 
+    }; 
+
+    //unit menus
+    auto tempscr = [&choice](){
+        std::cout << "======================================" << std::endl;
+        std::cout << "1. Fahrenheit (F)" << std::endl;
+        std::cout << "2. Celcius (C)" << std::endl;
+        std::cout << "3. Return to unit select" << std::endl;
+        std::cout << "4. Return to menu screen" << std::endl;
+        std::cout << "======================================" << std::endl << ">. ";
+    };
+    auto rainscr = [&choice](){
+        std::cout << "======================================" << std::endl;
+        std::cout << "1. Inches (in)" << std::endl;
+        std::cout << "2. Millimeters (mm)" << std::endl;
+        std::cout << "3. Return to unit select" << std::endl;
+        std::cout << "4. Return to menu screen" << std::endl;
+        std::cout << "======================================" << std::endl << ">. "; 
+    };
+    auto speedscr = [&choice](){
+        std::cout << "======================================" << std::endl;
+        std::cout << "1. Miles per Hour (mph)" << std::endl;
+        std::cout << "2. Kilometers per Hour (km/h)" << std::endl;
+        std::cout << "3. Meters per second (m/s)" << std::endl;
+        std::cout << "4. Return to unit select" << std::endl;
+        std::cout << "5. Return to menu screen" << std::endl;
+        std::cout << "======================================" << std::endl << ">. ";
+
+    };
+
+    while(true){
+        clearterm();
+        menugraphic();
+        switch(choice){
+            case 1:
+                while(true){
+                    //temp
+                    clearterm();
+                    tempscr();
+                    std::cin >>choice;
+                    if(choice ==3){
+                        break;
+                    }
+                    switch(choice){
+                        case 1:
+                            clearterm();
+                            temp = "F";
+                            templink = "&temperature_unit=fahrenheit";
+                            std::cout << "Switched unit of temperature to Fahrenheit (F)" <<std::endl;
+                            tempscr();
+                            break;
+                        case 2:
+                            clearterm();
+                            temp = "C";
+                            templink = "";
+                            std::cout << "Switched unit of temperature to Celcius (C)" << std::endl;
+                            tempscr();
+                            break;
+                        case 4:
+                            clearterm();
+                            return;  
+                            
+                        default:
+                            continue;
+                    }
+                }
+                break;
+            case 2:// rain
+                while(true){
+                    clearterm();
+                    rainscr();
+                    std::cin >> choice;
+                    if (choice ==3){
+                        break;
+                    }
+                    if (choice ==4){
+                        clearterm();
+                        return;
+                    }
+
+                    switch(choice){
+                        case 1:
+                            clearterm();
+                            measurement = "in";
+                            measurelink = "inch";
+                            std::cout << "Switched unit of measurement to inches (in)" << std::endl;
+                            rainscr();
+                            break;
+                        case 2:
+                            clearterm();
+                            measurement = "mm";
+                            measurelink = "";
+                            std::cout << "Switched unit of measurement to millimeters (mm)" << std::endl;
+                            rainscr();
+                            break;
+                        default:
+                            continue;
+                    }
+                }
+                break;
+            case 3: //windsub
+                while(true){
+                    clearterm();
+                    speedscr();
+                    std::cin >> choice;
+                    if(choice ==4){
+                        break;
+                    }
+                    if(choice ==5){
+                        clearterm();
+                        return;
+                    }
+                    switch(choice){
+                        case 1:
+                            clearterm();
+                            speed = "mph";
+                            speedlink = "&wind_speed_unit=mph";
+                            std::cout << "Switched unit of measurement to miles per hour (mph)" << std::endl;
+                            speedscr();
+                            break;
+                        case 2:
+                            clearterm();
+                            speed = "km/h";
+                            speedlink =""; //need to translate to km/h
+                            std::cout << "Switched unit of measurement to kilometers per hour (km/h)" << std::endl;
+                            speedscr();
+                            break;
+                        case 3:
+                            clearterm();
+                            speed = "m/s";
+                            speedlink = "&wind_speed_unit=ms";
+                            std::cout << "Switched unit of measurement to meters per second (m/s)" << std::endl;
+                            speedscr();
+                            break;
+                        default:
+                            continue;
+                    }
+                    
+                }
+                break;
+            case 4:
+                clearterm();
+                return;
+            default:
+                continue;
+        }
+    }
+    
+}
 void startmenu(){
     int choice=0;
     auto menugraphic = [&choice](){
-        std::cout <<
-        R"(======================================
-                        SJ #1              
-        --------------------------------------
-        1. Compare CA cities with your City
-        2. Select your city                
-        3. Select your state
-        ======================================)"
-        << std::endl;
+        std::cout << "======================================" << std::endl;
+        std::cout << "###!!!!!!!!!!! SANJOSE #1 !!!!!!!!!###" << std::endl;
+        std::cout << "--------------------------------------" << std::endl;
+        std::cout << "1. Compare CA cities with your city" << std::endl;
+        std::cout << "2. Select your city" << std::endl;
+        std::cout << "3. Select your state" << std::endl;
+        std::cout << "4. Change units of measurement" << std::endl;
+        std::cout << "======================================" << std::endl << ">. ";
         std::cin >> choice;
     };
     while(true){
@@ -85,6 +250,10 @@ void startmenu(){
                 clearterm();
                 selectprovince();
                 break;
+            case 4: //unitselection
+                clearterm();
+                unitscr();
+                break;
             default: //require valid input
                 clearterm();
                 break;
@@ -95,9 +264,9 @@ void selectprovince(){ //states will have %2C%20 before it (, )
     //only gonna do us states for now
     std::string choice;
     auto menugraphic = [&choice](){
-        std::cout << "---------"<< std::endl;
-        std::cout << "---#input a u.s state ex. California" << std::endl;
-        std::cout << "---------------" << std::endl;
+        std::cout << "======================================" <<  std::endl;
+        std::cout << "Input a US state ex. california, new york" << std::endl;
+        std::cout << "======================================" << std::endl << ">. ";
         // std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
         std::getline(std::cin >> std::ws, choice);
     };
@@ -108,20 +277,21 @@ void selectprovince(){ //states will have %2C%20 before it (, )
     statepicked = choice;
     if(choice.find(" ") != std::string::npos){
         size_t index = 0;
-        while(index=choice.find(' ', index) != std::string::npos){
+        while((index=choice.find(' ', index)) != std::string::npos){
             choice.replace(index,1,"%20");
             index+=3;
         }
     }
     statepickedid = choice;
-    std::cout << "state selected" <<std::endl;
+    clearterm();
+    std::cout << "User state selected" <<std::endl;
 }
 void usercity(){
     std::string choice;
     auto menugraphic = [&choice](){
-        std::cout << "-----------" << std::endl;
-        std::cout << "---#input city name ex. San Jose " << std::endl;
-        std::cout << "-------------" << std::endl;
+        std::cout << "======================================" << std::endl;
+        std::cout << "  Input your city's name ex. San Jose " << std::endl;
+        std::cout << "======================================" << std::endl << ">. ";
         std::getline(std::cin >> std::ws, choice);
     };
     while(choice.empty()){ //&& choice.find(" ") !=std::string::npos
@@ -137,22 +307,26 @@ void usercity(){
         }
     }
     citypickedid = choice;
-    std::cout << "city selected" << std::endl;
+    clearterm();
+    std::cout << "User city selected" << std::endl;
 };
 void comparecity(){
     int choice=0;
     auto menugraphic = [&choice](){
-        std::cout << "---------------------" << std::endl;
-        std::cout << "##Comparing Cities##" << std::endl;
+        std::cout << std::endl;
+        std::cout << "======================================" << std::endl;
+        std::cout << "          ##Comparing Cities##        " << std::endl;
         std::cout << "User City: " + citypicked << std::endl;
         std::cout << "Cali City: " + vacaycity << std::endl;
+        std::cout << "--------------------------------------" << std::endl;
         std::cout << "1. Temperature data" << std::endl;
         std::cout << "2. Preciptation data" << std::endl;
         std::cout << "3. Wind data" << std::endl;
         std::cout << "4. Return to CA city select" << std::endl;
+        std::cout << "=====================================" << std::endl << ">. ";
         std::cin >> choice;
     };
-    while(choice != 1 && choice !=2 && choice !=3 && choice!=4){
+    while(true){
         menugraphic();
         switch(choice){
             case 1:
@@ -180,14 +354,14 @@ void comparecity(){
 void choosecity(){
     int choice =0;
     auto menugraphic = [&choice](){
-        std::cout << "--------------" << std::endl;
-        std::cout << "---#select a city" << std::endl;
+        std::cout << "======================================" << std::endl;
+        std::cout << "      #Select a Californian City      " << std::endl;
         std::cout << "1. San Jose" << std::endl;
         std::cout << "2. San Francisco" << std::endl;
         std::cout << "3. Sacramento" << std::endl;
         std::cout << "4. Los Angeles" << std::endl;
         std::cout << "5. San Diego" << std::endl;
-        std::cout << "--------------" << std::endl;
+        std::cout << "======================================" << std::endl << ">. ";
         std::cin >> choice;
     };
     //wrong input results in this
@@ -286,7 +460,7 @@ void citydata(){
         std::string latitudedata = data[0]["lat"].get<std::string>();
         std::string longitudedata = data[0]["lon"].get<std::string>();
 
-        curl_easy_setopt(curl,CURLOPT_URL,("https://api.open-meteo.com/v1/forecast?latitude="+latitudedata+"&longitude="+longitudedata+"&daily=temperature_2m_max,temperature_2m_mean,temperature_2m_min,wind_speed_10m_max,sunrise,sunset,uv_index_clear_sky_max,precipitation_probability_max,precipitation_sum&hourly=wind_speed_10m&timezone=America%2FLos_Angeles&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch").c_str());
+        curl_easy_setopt(curl,CURLOPT_URL,("https://api.open-meteo.com/v1/forecast?latitude="+latitudedata+"&longitude="+longitudedata+"&daily=temperature_2m_max,temperature_2m_mean,temperature_2m_min,wind_speed_10m_max,sunrise,sunset,uv_index_clear_sky_max,precipitation_probability_max,precipitation_sum&hourly=wind_speed_10m&timezone=America%2FLos_Angeles"+templink+speedlink+measurelink).c_str());
         curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
         curl_easy_setopt(curl,CURLOPT_WRITEDATA,&usercitydata);
         CURLcode result = curl_easy_perform(curl);
@@ -321,14 +495,14 @@ void tempdata(){
     double vcdailymax =vcdata["daily"]["temperature_2m_max"][0].get<double>();
 
     auto menugraphic = [&choice,&ucdailymin,&ucdailymean,&ucdailymax,&vcdailymin,&vcdailymean,&vcdailymax](){
-        //output 
-        std::cout << "-----------------" << std::endl;
-        std::cout << citypicked + "'s minimum temperature today (F): " << ucdailymin << std::endl;
-        std::cout << citypicked + "'s maximum temperature today (F): " << ucdailymax << std::endl;
-        std::cout << "------------------------" << std::endl;
-        std::cout << vacaycity + "'s minimum temperature today (F)" << vcdailymin << std::endl;
-        std::cout << vacaycity + "'s maximum temperature today (F)" << vcdailymax << std::endl;
-        std::cout << "---------------------------------" << std::endl;
+        //output      ======================================
+        std::cout << "======================================" << std::endl;
+        std::cout << citypicked + "'s minimum temperature today: " << ucdailymin << temp << std::endl;
+        std::cout << citypicked + "'s maximum temperature today: " << ucdailymax <<temp << std::endl;
+        std::cout << "--------------------------------------" << std::endl;
+        std::cout << vacaycity + "'s minimum temperature today" << vcdailymin << temp << std::endl;
+        std::cout << vacaycity + "'s maximum temperature today" << vcdailymax << temp << std::endl;
+        std::cout << "======================================" << std::endl;
         if(ucdailymean <= 70.0){
             std::cout << "Stay at home if you prefer the colder days." << std::endl;
         }
@@ -340,16 +514,18 @@ void tempdata(){
         }
         
         if(vcdailymean <= 70.0){
-            std::cout << "Head out to " + vacaycity << "if you want a nice cool day." <<std::endl;
+            std::cout << "Head out to " + vacaycity << " if you want a nice cool day." <<std::endl;
         }
         else if(vcdailymean >70.0 && vcdailymean <85.0){
             std::cout << "Head out to " + vacaycity << " if you want a nice warm day." << std::endl;
         }
         else if(vcdailymax >85.0){
             std::cout << "Head out to " + vacaycity << " if you want a nice warm day." << std::endl;
-        }
+        }            
+        std::cout << "--------------------------------------" << std::endl;
         std::cout << "1. Return to city comparison" <<std::endl;
         std::cout << "2. Return to menu screen" << std::endl;
+        std::cout << "======================================" << std::endl << ">. ";
         std::cin >> choice;
     };
     while(choice !=1 && choice !=2){
@@ -381,15 +557,16 @@ void precipdata(){
     double vcmaxchance = vcdata["daily"]["precipitation_probability_max"][0].get<double>();
     double vcprecipsum = vcdata["daily"]["precipitation_sum"][0].get<double>();
     auto menugraphic = [&choice, &ucmaxchance, &ucprecipsum, &vcmaxchance,&vcprecipsum](){
-        std::cout << "------------------------" << std::endl;
-        std::cout << "Chance of preciptation today at your city (" << citypicked << "): " << ucmaxchance << std::endl;
-        std::cout << "Inches of rain today: " << ucprecipsum << std::endl;
-        std::cout << "------------------" << std::endl;
-        std::cout << "Chance of preciptation today at " << vacaycity << ": " << vcmaxchance << std::endl;
-        std::cout << "Inches of rain today at " << vacaycity << ": " << vcprecipsum << std::endl;
-        std::cout << "--------------------" << std::endl;
+        std::cout << "======================================" << std::endl;
+        std::cout << "Chance of preciptation today at your city (" << citypicked << "): " << ucmaxchance << "%" <<  std::endl;
+        std::cout << "Inches of rain today: " << ucprecipsum << measurement << std::endl;
+        std::cout << "--------------------------------------" << std::endl;
+        std::cout << "Chance of preciptation today at " << vacaycity << ": " << vcmaxchance << "%" << std::endl;
+        std::cout << "Inches of rain today at " << vacaycity << ": " << vcprecipsum << measurement << std::endl;
+        std::cout << "--------------------------------------" << std::endl;
         std::cout << "1. Return to city comparison" << std::endl;
         std::cout << "2. Return to start menu" << std::endl;
+        std::cout << "======================================" << std::endl << ">. ";
         std::cin >> choice;
     };
     while(choice != 1 && choice!=2){
@@ -419,18 +596,19 @@ void winddata(){ // all 10m above ground
     double ucwspeedhour = ucdata["hourly"]["wind_speed_10m"][0].get<double>(); // hourly and need to add to urls
     double ucwspeedmax = ucdata["daily"]["wind_speed_10m_max"][0].get<double>();
 
-    double vcwspeedhour = ucdata["hourly"]["wind_speed_10m"][0].get<double>();
-    double vcwspeedmax = ucdata["daily"]["wind_speed_10m_max"][0].get<double>();
+    double vcwspeedhour = vcdata["hourly"]["wind_speed_10m"][0].get<double>();
+    double vcwspeedmax = vcdata["daily"]["wind_speed_10m_max"][0].get<double>();
     auto menugraphic = [&choice,&ucwspeedhour,&ucwspeedmax,&vcwspeedhour,&vcwspeedmax](){
-        std::cout << "-----------------" << std::endl;
-        std::cout << "Current wind speed 10 meters off the ground in your city: " << ucwspeedhour << std::endl;
-        std::cout << "Fastest wind speed today 10 meters off the ground: " << ucwspeedmax << std::endl;
-        std::cout << "-------------------" << std::endl;
-        std::cout << "Current wind speed in " + vacaycity + ": " << vcwspeedhour << std::endl;
-        std::cout << "Fastest wind speed today in " + vacaycity + ": " << vcwspeedmax << std::endl;
-        std::cout << "-----------------------------" << std::endl;
+        std::cout << "======================================" << std::endl;
+        std::cout << "Current wind speed 10 meters off the ground in your city: " << ucwspeedhour << speed << std::endl;
+        std::cout << "Fastest wind speed today 10 meters off the ground: " << ucwspeedmax << speed << std::endl;
+        std::cout << "--------------------------------------" << std::endl;
+        std::cout << "Current wind speed in " + vacaycity + ": " << vcwspeedhour << speed << std::endl;
+        std::cout << "Fastest wind speed today in " + vacaycity + ": " << vcwspeedmax << speed << std::endl;
+        std::cout << "--------------------------------------" << std::endl;
         std::cout << "1. Return to city comparison" << std::endl;
         std::cout << "2. Return to start menu" << std::endl;
+        std::cout << "======================================" << std::endl << ">. ";
         std::cin >> choice;
     };
     while(choice !=1 && choice !=2){
@@ -454,9 +632,9 @@ void winddata(){ // all 10m above ground
 }
 // wow i didnt even know i didnt have a int main... swore i had one
 int main(){
-    std::cout << "startapp" << std::endl;
+    std::cout << "Program booted" << std::endl;
     startmenu();
-    std::cout << "startmen died" << std::endl;
+    std::cout << "Program died (enter anything to close)" << std::endl;
     std::cin.get();
     return 0;
 }
