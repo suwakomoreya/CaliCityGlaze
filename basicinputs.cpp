@@ -112,7 +112,7 @@ void unitscr(){
                         case 2:
                             clearterm();
                             temp = "C";
-                            templink = "";
+                            templink = "&temperature_unit=celsius";
                             std::cout << "Switched unit of temperature to Celcius (C)" << std::endl;
                             tempscr();
                             break;
@@ -142,14 +142,14 @@ void unitscr(){
                         case 1:
                             clearterm();
                             measurement = "in";
-                            measurelink = "inch";
+                            measurelink = "&precipitation_unit=inch";
                             std::cout << "Switched unit of measurement to inches (in)" << std::endl;
                             rainscr();
                             break;
                         case 2:
                             clearterm();
                             measurement = "mm";
-                            measurelink = "";
+                            measurelink = "&precipitation_unit=mm";
                             std::cout << "Switched unit of measurement to millimeters (mm)" << std::endl;
                             rainscr();
                             break;
@@ -181,7 +181,7 @@ void unitscr(){
                         case 2:
                             clearterm();
                             speed = "km/h";
-                            speedlink =""; //need to translate to km/h
+                            speedlink = "&wind_speed_unit=kmh"; //need to translate to km/h
                             std::cout << "Switched unit of measurement to kilometers per hour (km/h)" << std::endl;
                             speedscr();
                             break;
@@ -422,7 +422,8 @@ void citydata(){
     //grab datas
     auto grabvcdata = [&curl](){ //grabs vacation city data
         if(curl){
-            curl_easy_setopt(curl,CURLOPT_URL,cities.at(vacaycity).c_str());
+            std::string url = cities.at(vacaycity) + templink + speedlink + measurelink;
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, writeCallBack);
             curl_easy_setopt(curl,CURLOPT_WRITEDATA,&vacaycitydata);
             CURLcode result = curl_easy_perform(curl);
